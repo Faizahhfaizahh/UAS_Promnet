@@ -75,12 +75,17 @@ public class GUI extends JFrame {
     // Data Menu
     private List<MenuItem> menuItems = new ArrayList<>(Arrays.asList(
             new MenuItem("Spicy seasoned seafood noodles", 4.58,
-                    "images/seafood_noodles.jpg"),
-            new MenuItem("Salted Pasta with mushroom sauce", 2.69, "images/pasta.jpg"),
-            new MenuItem("Beef dumpling in hot and sour soup", 3.48, "images/dumpling.jpg"),
-            new MenuItem("Healthy noodle with spinach leaf", 3.29, "images/spinach_noodle.jpg"),
-            new MenuItem("Hot spicy fried rice with omelet", 3.59, "images/fried_rice.jpg"),
-            new MenuItem("Spicy noodle with  omelette", 3.59, "images/instant_noodle.jpg")));
+                    "D:\\Pemrograman Internet\\UAS_Promnet\\images\\Images.png"),
+            new MenuItem("Salted Pasta with mushroom sauce", 2.69,
+                    "D:\\Pemrograman Internet\\UAS_Promnet\\images\\spaghetti-mushrooms-with-copybook-raw-pasta-kitchen-towel-plate.png"),
+            new MenuItem("Beef dumpling in hot and sour soup", 3.48,
+                    "D:\\Pemrograman Internet\\UAS_Promnet\\images\\Thai Coconut Curry Dumpling Soup.jpeg"),
+            new MenuItem("Healthy noodle with spinach leaf", 3.29,
+                    "D:\\Pemrograman Internet\\UAS_Promnet\\images\\spinach_noodle.jpg"),
+            new MenuItem("Hot spicy fried rice with omelet", 3.59,
+                    "D:\\Pemrograman Internet\\UAS_Promnet\\images\\fried_rice.jpg"),
+            new MenuItem("Spicy noodle with  omelette", 3.59,
+                    "D:\\Pemrograman Internet\\UAS_Promnet\\images\\instant_noodle.jpg")));
 
     public GUI() {
         setTitle("FINE Resto");
@@ -96,7 +101,7 @@ public class GUI extends JFrame {
 
         // --- 1. Panel Konten Utama (KIRI: Menu | KANAN: Cart) ---
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-        splitPane.setDividerLocation(splitPane.getWidth() * 2 / 3); // Awalnya 2/3 untuk menu, 1/3 untuk cart
+        splitPane.setDividerLocation(splitPane.getWidth() * 2 / 3);
         splitPane.setDividerSize(5);
         splitPane.setBackground(DARK_BG);
         splitPane.setOpaque(false);
@@ -313,22 +318,50 @@ public class GUI extends JFrame {
     }
 
     private JPanel createMenuItemCard(MenuItem item) {
-        JPanel card = new JPanel();
+
+        JPanel card = new JPanel() {
+
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+                // Rounded background
+                g2.setColor(SIDEBAR_BG);
+                g2.fillRoundRect(0, 40, getWidth() - 12, getHeight() - 52, 25, 25);
+
+                // Shadow
+                g2.setColor(new Color(0, 0, 0, 60));
+                g2.fillRoundRect(5, 8, getWidth() - 10, getHeight() - 10, 25, 25);
+
+                // Card background
+                g2.setColor(new Color(48, 51, 61));
+                g2.fillRoundRect(0, 0, getWidth() - 10, getHeight() - 10, 25, 25);
+
+                super.paintComponent(g2);
+            }
+
+            @Override
+            public boolean isOpaque() {
+                return false; // wajib biar shadow terlihat
+            }
+        };
+
         card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
-        card.setBackground(SIDEBAR_BG);
-        card.setBorder(new EmptyBorder(10, 10, 10, 10));
+        card.setBorder(new EmptyBorder(20, 10, 10, 10));
         card.setPreferredSize(new Dimension(200, 300));
         card.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        // Image Label
+        // =========================
+        // IMAGE CIRCULAR (TETAP ADA)
+        // =========================
         JLabel imageLabel = new JLabel() {
             {
                 setPreferredSize(new Dimension(150, 150));
-                setMinimumSize(new Dimension(150, 150));
-                setMaximumSize(new Dimension(150, 150));
-                setOpaque(true);
-                setBackground(DARK_BG);
                 setHorizontalAlignment(SwingConstants.CENTER);
+                setOpaque(false);
                 setForeground(TEXT_COLOR);
             }
 
@@ -336,58 +369,62 @@ public class GUI extends JFrame {
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
                 int size = Math.min(getWidth(), getHeight());
                 int x = (getWidth() - size) / 2;
                 int y = (getHeight() - size) / 2;
+
                 g2.setClip(new Ellipse2D.Float(x, y, size, size));
                 super.paintComponent(g2);
+
                 g2.dispose();
             }
         };
 
         try {
-            BufferedImage originalImage = ImageIO.read(new File(item.imagePath));
-            if (originalImage != null) {
-                int size = 150;
-                Image scaledImage = originalImage.getScaledInstance(size, size, Image.SCALE_SMOOTH);
-                imageLabel.setIcon(new ImageIcon(scaledImage));
-                imageLabel.setText("");
+            BufferedImage img = ImageIO.read(new File(item.imagePath));
+            if (img != null) {
+                Image scaled = img.getScaledInstance(150, 150, Image.SCALE_SMOOTH);
+                imageLabel.setIcon(new ImageIcon(scaled));
             } else {
                 imageLabel.setText("[Image Not Found]");
             }
         } catch (Exception e) {
             imageLabel.setText("[Image Load Error]");
-            // System.err.println("Error memuat gambar: " + item.imagePath + " - " +
-            // e.getMessage());
         }
 
+        // wrapper supaya image sedikit "keluar" dari card → efek modern
         JPanel imageWrapper = new JPanel(new FlowLayout(FlowLayout.CENTER));
         imageWrapper.setOpaque(false);
+        imageWrapper.setBorder(new EmptyBorder(0, 0, 0, 0)); // posisi keluar
         imageWrapper.add(imageLabel);
 
-        // Nama
+        // NAMA
         JLabel nameLabel = new JLabel("<html><center>" + item.name + "</center></html>");
         nameLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
         nameLabel.setForeground(TEXT_COLOR);
         nameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // Harga
-        JLabel priceLabel = new JLabel("$" + String.format("%.2f", item.price));
-        priceLabel.setForeground(TEXT_COLOR);
-        priceLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        nameLabel.setMaximumSize(new Dimension(Integer.MAX_VALUE, nameLabel.getPreferredSize().height));
-
         JPanel nameWrapper = new JPanel(new FlowLayout(FlowLayout.CENTER));
         nameWrapper.setOpaque(false);
         nameWrapper.add(nameLabel);
 
+        // HARGA
+        JLabel priceLabel = new JLabel("$" + String.format("%.2f", item.price));
+        priceLabel.setForeground(TEXT_COLOR);
+        priceLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
+        priceLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        // ADD EVERYTHING
         card.add(imageWrapper);
         card.add(Box.createVerticalStrut(10));
         card.add(nameWrapper);
         card.add(Box.createVerticalStrut(5));
         card.add(priceLabel);
 
-        // Efek Hover dan Click
+        // ===================================================
+        // HOVER + CLICK (FUNGSI PENTING TETAP DIPERTAHANKAN)
+        // ===================================================
         card.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -397,6 +434,7 @@ public class GUI extends JFrame {
 
             @Override
             public void mouseEntered(MouseEvent e) {
+                card.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                 card.setBackground(CART_BG);
             }
 
