@@ -1,3 +1,4 @@
+// Simpan sebagai GUI.java (pastikan hanya satu file GUI.java, jangan ada duplikat)
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -72,6 +73,9 @@ public class GUI extends JFrame {
     private JPanel itemsContainer;
     private JLabel subTotalLabel;
 
+    // --- MENU LIST PANEL (field supaya bisa diakses renderMenu) ---
+    private JPanel menuListPanel;
+
     // Data Menu
     private List<MenuItem> menuItems = new ArrayList<>(Arrays.asList(
             new MenuItem("Spicy seasoned seafood noodles", 4.58,
@@ -86,6 +90,21 @@ public class GUI extends JFrame {
                     "D:\\Pemrograman Internet\\UAS_Promnet\\images\\fried_rice.jpg"),
             new MenuItem("Spicy noodle with  omelette", 3.59,
                     "D:\\Pemrograman Internet\\UAS_Promnet\\images\\instant_noodle.jpg")));
+
+    private List<MenuItem> drinkItems = new ArrayList<>(Arrays.asList(
+            new MenuItem("Iced Lemon Tea", 1.99, "D:\\Pemrograman Internet\\UAS_Promnet\\images\\lemon_tea.png"),
+            new MenuItem("Fresh Orange Juice", 2.49, "D:\\Pemrograman Internet\\UAS_Promnet\\images\\orange_juice.jpg"),
+            new MenuItem("Chocolate Milkshake", 3.29, "D:\\Pemrograman Internet\\UAS_Promnet\\images\\milkshake.png"),
+            new MenuItem("Matcha Latte", 1.99, "D:\\Pemrograman Internet\\UAS_Promnet\\images\\matcha.png"),
+            new MenuItem("Fresh Apple Juice", 2.49, "D:\\Pemrograman Internet\\UAS_Promnet\\images\\apple_juice.png"),
+            new MenuItem("Coffee Latte", 3.29, "D:\\Pemrograman Internet\\UAS_Promnet\\images\\coffee.png")
+    ));
+
+    private List<MenuItem> dessertItems = new ArrayList<>(Arrays.asList(
+            new MenuItem("Strawberry Cheesecake", 3.99, "D:\\Pemrograman Internet\\UAS_Promnet\\images\\cheesecake.png"),
+            new MenuItem("Chocolate Lava Cake", 4.59, "D:\\Pemrograman Internet\\UAS_Promnet\\images\\lava_cake.png"),
+            new MenuItem("Matcha Ice Cream", 2.99, "D:\\Pemrograman Internet\\UAS_Promnet\\images\\matcha_icecream.png")
+    ));
 
     public GUI() {
         setTitle("FINE Resto");
@@ -284,19 +303,32 @@ public class GUI extends JFrame {
         String[] categories = { "Dishes", "Drink", "Dessert" };
         for (String cat : categories) {
             JButton catBtn = createStyledButton(cat, DARK_BG, INACTIVE_TAB);
-            if (cat.equals("Dishes")) {
-                catBtn.setForeground(ACCENT_COLOR);
-            }
+
+            catBtn.addActionListener(e -> {
+                switch (cat) {
+                    case "Dishes":
+                        renderMenu(menuItems);
+                        break;
+                    case "Drink":
+                        renderMenu(drinkItems);
+                        break;
+                    case "Dessert":
+                        renderMenu(dessertItems);
+                        break;
+                }
+            });
+
             categoryPanel.add(catBtn);
         }
         menuHeader.add(categoryPanel, BorderLayout.CENTER);
         menuContainer.add(menuHeader, BorderLayout.NORTH);
 
         // --- 2. Menu List ---
-        JPanel menuListPanel = new JPanel(new GridLayout(0, 3, 30, 30));
+        menuListPanel = new JPanel(new GridLayout(0, 3, 30, 30));
         menuListPanel.setBackground(DARK_BG);
         menuListPanel.setBorder(new EmptyBorder(20, 0, 0, 0));
 
+        // default render dishes
         for (MenuItem item : menuItems) {
             menuListPanel.add(createMenuItemCard(item));
         }
@@ -315,6 +347,18 @@ public class GUI extends JFrame {
         menuContainer.add(scrollPane, BorderLayout.CENTER);
 
         return menuContainer;
+    }
+
+    // RENDER MENU: method berada di level kelas (bukan di dalam method lain)
+    private void renderMenu(List<MenuItem> items) {
+        if (menuListPanel == null) return; // safety
+
+        menuListPanel.removeAll();
+        for (MenuItem item : items) {
+            menuListPanel.add(createMenuItemCard(item));
+        }
+        menuListPanel.revalidate();
+        menuListPanel.repaint();
     }
 
     private JPanel createMenuItemCard(MenuItem item) {
@@ -727,7 +771,7 @@ public class GUI extends JFrame {
         btn.setBorder(null);
 
         btn.addActionListener(e -> {
-            int currentQty = cartItems.get(item);
+            int currentQty = cartItems.getOrDefault(item, 0);
             if (change == -1) {
                 if (currentQty > 1) {
                     cartItems.put(item, currentQty - 1);

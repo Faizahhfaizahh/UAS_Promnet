@@ -11,7 +11,7 @@ public class ClientMain {
         try {
             Socket socket = new Socket("localhost", 5000);
             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-            out.flush(); // penting
+            out.flush(); 
             ObjectInputStream objectIn = new ObjectInputStream(socket.getInputStream());
 
             Scanner sc = new Scanner(System.in);
